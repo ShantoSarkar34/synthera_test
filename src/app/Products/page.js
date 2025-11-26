@@ -69,9 +69,9 @@ export default function ProductsPage() {
   }, [search, category, priceRange, sortBy, page]);
 
   return (
-    <div className=" mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-gray-300 w-[100%] min-h-screen">
+    <div className=" mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-gray-300 w-full min-h-screen">
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-r bg-[#1c4c8b] to-indigo-600 text-white rounded-lg shadow-lg p-8 mb-10">
+      <div className="relative bg-linear-to-r bg-[#1c4c8b] to-indigo-600 text-white rounded-lg shadow-lg p-8 mb-10">
         <h1 className="text-4xl md:text-5xl font-extrabold">Explore Our Products</h1>
         <p className="mt-2 text-lg md:text-xl opacity-90">
           Discover the best deals on top-quality items.

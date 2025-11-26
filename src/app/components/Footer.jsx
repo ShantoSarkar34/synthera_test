@@ -4,7 +4,7 @@ export default function Footer() {
     const navItems = (
     <>
       <li><Link  href="/" >Home</Link></li>
-      <li><Link  href="/Shop">Products</Link></li>
+      <li><Link  href="/Shop">products</Link></li>
       <li><Link  href="/dashboard">Dashboard</Link></li>
        <li><Link  href="/" >Synthera AI</Link></li>
     </>

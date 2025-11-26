@@ -14,7 +14,7 @@ const NavBar = () => {
 
   const navItems = [
     { name: "Home", href: "/" },
-    { name: "Products", href: "/Products" },
+    { name: "Products", href: "/products" },
     { name: "Dashboard", href: "/dashboard" },
     { name: "Synthera AI", href: "#" },
     

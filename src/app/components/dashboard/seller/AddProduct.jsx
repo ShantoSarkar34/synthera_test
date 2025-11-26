@@ -3,6 +3,7 @@
 import axios from "axios";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 export default function AddProduct() {
   const { register, control, handleSubmit, reset, formState: { errors } } = useForm({
@@ -86,7 +87,7 @@ export default function AddProduct() {
         headers: { "Content-Type": "application/json" },
       });
 
-      console.log("✅ Product created:", res.data);
+      toast.success("✅ Product created successfully!");
       reset();
     } catch (err) {
       console.error("❌ Failed to create product:", err);
@@ -98,7 +99,7 @@ export default function AddProduct() {
   return (
     <div className=" bg-white min-h-screen">
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-r from-[#1c4c8b] to-[#1c4c8b] text-white rounded-lg shadow-lg p-8 mb-10">
+      <div className="relative bg-linear-to-r from-[#1c4c8b] to-[#1c4c8b] text-white rounded-lg shadow-lg p-8 mb-10">
         <h1 className="text-4xl md:text-5xl font-extrabold">Add New Product</h1>
         <p className="mt-2 text-lg opacity-90">Create a new product listing for your store.</p>
       </div>

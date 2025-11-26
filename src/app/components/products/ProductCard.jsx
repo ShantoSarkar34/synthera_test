@@ -44,7 +44,7 @@ const { addToWishlist } = useWishlist();
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                router.push(`/Products/${_id}`);
+                router.push(`/products/${_id}`);
               }}
               className="bg-white p-2 rounded-full hover:scale-110 transition"
             >
@@ -69,7 +69,7 @@ const { addToWishlist } = useWishlist();
           <span className="uppercase">{category}</span>
           <span>{sizes.join(" ")}</span>
         </div>
-        <h3 className="font-semibold text-gray-800 mt-1" onClick={() => router.push(`/Products/${productId}`)}>
+        <h3 className="font-semibold text-gray-800 mt-1" onClick={() => router.push(`/products/${productId}`)}>
           {title}
         </h3>
 

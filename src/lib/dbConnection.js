@@ -1,14 +1,24 @@
-import { MongoClient, ServerApiVersion } from "mongodb";
+import { MongoClient } from "mongodb";
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-export default function dbConnection(collectionName){
-  const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.8lttcwc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
-  const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
+const uri = process.env.MONGODB_URI;
+if (!uri) throw new Error("❌ MONGODB_URI is missing in .env.local");
+
+let client;
+let clientPromise;
+
+if (process.env.NODE_ENV === "development") {
+  // Reuse the client on hot reloads
+  if (!global._mongoClient) {
+    global._mongoClient = new MongoClient(uri);
   }
-});
-return client.db(process.env.DB_NAME).collection(collectionName);
+  client = global._mongoClient;
+} else {
+  client = new MongoClient(uri);
+}
+
+clientPromise = client.connect();
+
+export async function getCollection(collectionName) {
+  const db = (await clientPromise).db();
+  return db.collection(collectionName);
 }

@@ -1,50 +1,26 @@
-import dbConnection from "@/lib/dbConnection";
+import { getCollection } from "@/lib/dbConnection";
 
-async function authenticate(req) {
-  const token = req.headers.get("authorization")?.split(" ")[1];
-  return token === process.env.ADMIN_TOKEN;
-}
-
-export async function POST(req) {
-  try {
-    const product = await req.json();
-
-    if (!product.title || !product.price) {
-      return new Response(JSON.stringify({ error: "Title and price required" }), { status: 400 });
-    }
-
-    const productsCollection = await dbConnection("products"); // already collection
-    const result = await productsCollection.insertOne(product);
-
-    return new Response(JSON.stringify({ ...product, _id: result.insertedId }), { status: 201 });
-  } catch (err) {
-    console.error(err);
-    return new Response(JSON.stringify({ error: "Failed to create product" }), { status: 500 });
-  }
-}
-
+// GET /api/products
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
 
     const search = searchParams.get("search") || "";
     const category = searchParams.get("category") || "";
-    const minPrice = parseInt(searchParams.get("minPrice")) || 0;
-    const maxPrice = parseInt(searchParams.get("maxPrice")) || 1000000;
+    const minPrice = parseFloat(searchParams.get("minPrice")) || 0;
+    const maxPrice = parseFloat(searchParams.get("maxPrice")) || 1_000_000;
     const sort = searchParams.get("sort") || "default";
     const page = parseInt(searchParams.get("page")) || 1;
     const limit = parseInt(searchParams.get("limit")) || 8;
 
-    const productsCollection = await dbConnection("products");
+    const productsCollection = await getCollection("products");
 
-    // Build MongoDB filter
     const query = {
       price: { $gte: minPrice, $lte: maxPrice },
       ...(search ? { title: { $regex: search, $options: "i" } } : {}),
       ...(category ? { category } : {}),
     };
 
-    // Sorting
     let sortOption = {};
     if (sort === "price-low") sortOption = { price: 1 };
     if (sort === "price-high") sortOption = { price: -1 };
@@ -67,11 +43,66 @@ export async function GET(req) {
       { status: 200 }
     );
   } catch (err) {
-    console.error(err);
+    console.error("GET /api/products ERROR:", err);
     return new Response(
-      JSON.stringify({ error: "Failed to fetch products" }),
+      JSON.stringify({ error: "Failed to fetch products", details: err.message }),
       { status: 500 }
     );
   }
 }
 
+// POST /api/products
+export async function POST(req) {
+  try {
+    const body = await req.json();
+    console.log("POST BODY:", body);
+
+    // Validate required fields
+    if (!body.title || !body.price) {
+      return new Response(JSON.stringify({ error: "Missing title or price" }), { status: 400 });
+    }
+
+    // Convert numeric fields
+    body.price = Number(body.price);
+    body.discountPrice = Number(body.discountPrice) || 0;
+
+    if (body.rating) {
+      body.rating = {
+        average: Number(body.rating.average) || 0,
+        count: Number(body.rating.count) || 0,
+      };
+    } else {
+      body.rating = { average: 0, count: 0 };
+    }
+
+    if (body.variants) {
+      body.variants = body.variants.map((v) => ({
+        ...v,
+        sizes: v.sizes.map((s) => ({
+          size: s.size,
+          stock: Number(s.stock) || 0,
+        })),
+      }));
+    }
+
+    body.createdAt = new Date().toISOString();
+    body.updatedAt = new Date().toISOString();
+
+    const productsCollection = await getCollection("products");
+
+    const result = await productsCollection.insertOne(body);
+
+    console.log("✅ Product inserted:", result.insertedId);
+
+    return new Response(
+      JSON.stringify({ ...body, _id: result.insertedId }),
+      { status: 201 }
+    );
+  } catch (err) {
+    console.error("POST PRODUCT ERROR:", err);
+    return new Response(
+      JSON.stringify({ error: "Failed to create product", details: err.message }),
+      { status: 500 }
+    );
+  }
+}
